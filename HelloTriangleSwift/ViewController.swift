@@ -29,6 +29,10 @@ class ViewController: NSViewController {
                 mtkView.device = device
             }
         }
+        
+        if mtkView.device == nil {
+            mtkView.device = MTLCreateSystemDefaultDevice()
+        }
         print(mtkView.device!.name)
         
 //        guard let defaultDevice = MTLCreateSystemDefaultDevice() else {
