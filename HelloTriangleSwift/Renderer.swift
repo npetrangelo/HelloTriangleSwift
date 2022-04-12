@@ -60,8 +60,8 @@ class Renderer : NSObject, MTKViewDelegate {
             VertexIn(pos: [ 1,  1, 0], color: [0,1,1,0])
         ]
         
-        cube = MDLMesh.newBox(withDimensions: [1,1,1], segments: [1,1,1], geometryType: .quads, inwardNormals: false, allocator: nil)
-        
+        cube = MDLMesh.newBox(withDimensions: [1,1,1], segments: [1,1,1], geometryType: .quads, inwardNormals: false, allocator: MTKMeshBufferAllocator(device: device))
+                
         // And copy it to a Metal buffer...
         vertexBuffer = device.makeBuffer(bytes: vertices, length: vertices.count * MemoryLayout<VertexIn>.stride, options: [])!
         
