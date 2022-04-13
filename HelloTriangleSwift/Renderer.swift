@@ -18,6 +18,7 @@ class Renderer : NSObject, MTKViewDelegate {
     var vertices : [VertexIn]
     var vertexBuffer: MTLBuffer
     var cube: MDLMesh
+    var meshes: [MTKMesh] = []
     var sceneBuffer: MTLBuffer
     var t : Float
     
@@ -146,5 +147,25 @@ class Renderer : NSObject, MTKViewDelegate {
         
         // Compile the configured pipeline descriptor to a pipeline state object
         return try device.makeRenderPipelineState(descriptor: pipelineDescriptor)
+    }
+    
+    func loadResources() {
+        let modelURL = Bundle.main.url(forResource: "teapot", withExtension: "obj")!
+        
+        let vertexDescriptor = MDLVertexDescriptor()
+        vertexDescriptor.attributes[0] = MDLVertexAttribute(name: MDLVertexAttributePosition, format: .float3, offset: 0, bufferIndex: 0)
+        vertexDescriptor.attributes[1] = MDLVertexAttribute(name: MDLVertexAttributeNormal, format: .float3, offset: MemoryLayout<Float>.size * 3, bufferIndex: 0)
+        vertexDescriptor.attributes[2] = MDLVertexAttribute(name: MDLVertexAttributeTextureCoordinate, format: .float2, offset: MemoryLayout<Float>.size * 6, bufferIndex: 0)
+        vertexDescriptor.layouts[0] = MDLVertexBufferLayout(stride: MemoryLayout<Float>.size * 8)
+        
+        let mtlVertexDescriptor = MTKMetalVertexDescriptorFromModelIO(vertexDescriptor)
+        let bufferAllocator = MTKMeshBufferAllocator(device: device)
+        let asset = MDLAsset(url: modelURL, vertexDescriptor: vertexDescriptor, bufferAllocator: bufferAllocator)
+        
+        do {
+            (_, self.meshes) = try MTKMesh.newMeshes(asset: asset, device: device)
+        } catch {
+            fatalError("Could not extract meshes from Model I/O asset")
+        }
     }
 }
